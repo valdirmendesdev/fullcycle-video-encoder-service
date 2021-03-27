@@ -20,18 +20,8 @@ func NewVideoService() VideoService {
 	return VideoService{}
 }
 
-const tmpDirPath = "localStoragePath"
-
-func mountTempFilename(filename, extension string ) string {
-	return os.Getenv(tmpDirPath) + "/" + filename + extension
-}
-
-func mountTempFolder(foldername string) string {
-	return os.Getenv(tmpDirPath) + "/" + foldername
-}
-
 func (v *VideoService) Download(bucketName string) error {
-	ctx :=  context.Background()
+	ctx := context.Background()
 	client, err := storage.NewClient(ctx)
 	if err != nil {
 		return err
@@ -52,7 +42,7 @@ func (v *VideoService) Download(bucketName string) error {
 		return err
 	}
 
-	f, err := os.Create(mountTempFilename(v.Video.ID, ".mp4"))
+	f, err := os.Create(MountTempFilename(v.Video.ID, ".mp4"))
 	if err != nil {
 		return nil
 	}
@@ -70,13 +60,13 @@ func (v *VideoService) Download(bucketName string) error {
 }
 
 func (v *VideoService) Fragment() error {
-	err := os.Mkdir(mountTempFolder(v.Video.ID), os.ModePerm)
+	err := os.Mkdir(MountTempFolder(v.Video.ID), os.ModePerm)
 	if err != nil {
 		return err
 	}
 
-	source := mountTempFilename(v.Video.ID, ".mp4")
-	target := mountTempFilename(v.Video.ID, ".frag")
+	source := MountTempFilename(v.Video.ID, ".mp4")
+	target := MountTempFilename(v.Video.ID, ".frag")
 
 	cmd := exec.Command("mp4fragment", source, target)
 	output, err := cmd.CombinedOutput()
@@ -90,10 +80,10 @@ func (v *VideoService) Fragment() error {
 func (v *VideoService) Encode() error {
 
 	cmdArgs := []string{}
-	cmdArgs = append(cmdArgs, mountTempFilename(v.Video.ID, ".frag"))
+	cmdArgs = append(cmdArgs, MountTempFilename(v.Video.ID, ".frag"))
 	cmdArgs = append(cmdArgs, "--use-segment-timeline")
 	cmdArgs = append(cmdArgs, "-o")
-	cmdArgs = append(cmdArgs, mountTempFolder(v.Video.ID))
+	cmdArgs = append(cmdArgs, MountTempFolder(v.Video.ID))
 	cmdArgs = append(cmdArgs, "-f")
 	cmdArgs = append(cmdArgs, "--exec-dir")
 	cmdArgs = append(cmdArgs, "/opt/bento4/bin/")
@@ -108,19 +98,19 @@ func (v *VideoService) Encode() error {
 }
 
 func (v *VideoService) Finish() error {
-	err := os.Remove(mountTempFilename(v.Video.ID, ".mp4"))
+	err := os.Remove(MountTempFilename(v.Video.ID, ".mp4"))
 	if err != nil {
 		log.Println("error removing mp4 ", v.Video.ID, ".mp4")
 		return err
 	}
 
-	err = os.Remove(mountTempFilename(v.Video.ID, ".frag"))
+	err = os.Remove(MountTempFilename(v.Video.ID, ".frag"))
 	if err != nil {
 		log.Println("error removing frag ", v.Video.ID, ".frag")
 		return err
 	}
 
-	err = os.RemoveAll(mountTempFolder(v.Video.ID))
+	err = os.RemoveAll(MountTempFolder(v.Video.ID))
 	if err != nil {
 		log.Println("error removing video folder ", v.Video.ID)
 		return err
