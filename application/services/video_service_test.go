@@ -13,6 +13,8 @@ import (
 	"time"
 )
 
+const bucketNameToTest = "fullcycletest"
+
 func init() {
 	err := godotenv.Load("../../.env")
 	if err != nil {
@@ -41,7 +43,7 @@ func TestVideoServiceDownload(t *testing.T) {
 	videoService.Video = video
 	videoService.VideoRepository = repo
 
-	err := videoService.Download("fullcycletest")
+	err := videoService.Download(bucketNameToTest)
 	require.Nil(t, err)
 
 	err = videoService.Fragment()
