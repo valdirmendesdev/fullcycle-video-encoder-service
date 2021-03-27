@@ -13,7 +13,7 @@ import (
 
 type VideoService struct {
 	Video           *domain.Video
-	VideoRepository *repositories.VideoRepository
+	VideoRepository repositories.VideoRepository
 }
 
 func NewVideoService() VideoService {
