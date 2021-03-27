@@ -110,19 +110,19 @@ func (v *VideoService) Encode() error {
 func (v *VideoService) Finish() error {
 	err := os.Remove(mountTempFilename(v.Video.ID, ".mp4"))
 	if err != nil {
-		log.Println("error removing mp4", v.Video.ID, ".mp4")
+		log.Println("error removing mp4 ", v.Video.ID, ".mp4")
 		return err
 	}
 
 	err = os.Remove(mountTempFilename(v.Video.ID, ".frag"))
 	if err != nil {
-		log.Println("error removing frag", v.Video.ID, ".frag")
+		log.Println("error removing frag ", v.Video.ID, ".frag")
 		return err
 	}
 
 	err = os.RemoveAll(mountTempFolder(v.Video.ID))
 	if err != nil {
-		log.Println("error removing video folder", v.Video.ID)
+		log.Println("error removing video folder ", v.Video.ID)
 		return err
 	}
 
