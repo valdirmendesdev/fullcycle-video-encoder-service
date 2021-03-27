@@ -26,6 +26,10 @@ func mountTempFilename(filename, extension string ) string {
 	return os.Getenv(tmpDirectoryPath) + "/" + filename + extension
 }
 
+func mountTempFolder(foldername string) string {
+	return os.Getenv(tmpDirectoryPath) + "/" + foldername
+}
+
 func (v *VideoService) Download(bucketName string) error {
 	ctx :=  context.Background()
 	client, err := storage.NewClient(ctx)
@@ -66,7 +70,7 @@ func (v *VideoService) Download(bucketName string) error {
 }
 
 func (v *VideoService) Fragment() error {
-	err := os.Mkdir(os.Getenv(tmpDirectoryPath) + "/" +v.Video.ID, os.ModePerm)
+	err := os.Mkdir(mountTempFolder(v.Video.ID), os.ModePerm)
 	if err != nil {
 		return err
 	}
@@ -75,6 +79,26 @@ func (v *VideoService) Fragment() error {
 	target := mountTempFilename(v.Video.ID, ".frag")
 
 	cmd := exec.Command("mp4fragment", source, target)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	printOutput(output)
+	return nil
+}
+
+func (v *VideoService) Encode() error {
+
+	cmdArgs := []string{}
+	cmdArgs = append(cmdArgs, mountTempFilename(v.Video.ID, ".frag"))
+	cmdArgs = append(cmdArgs, "--use-segment-timeline")
+	cmdArgs = append(cmdArgs, "-o")
+	cmdArgs = append(cmdArgs, mountTempFolder(v.Video.ID))
+	cmdArgs = append(cmdArgs, "-f")
+	cmdArgs = append(cmdArgs, "--exec-dir")
+	cmdArgs = append(cmdArgs, "/opt/bento4/bin/")
+	cmd := exec.Command("mp4dash", cmdArgs...)
+
 	output, err := cmd.CombinedOutput()
 	if err != nil {
 		return err
