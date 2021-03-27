@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
 )
 
 type VideoService struct {
@@ -17,6 +18,12 @@ type VideoService struct {
 
 func NewVideoService() VideoService {
 	return VideoService{}
+}
+
+const tmpDirectoryPath = "localStoragePath"
+
+func mountTempFilename(filename, extension string ) string {
+	return os.Getenv(tmpDirectoryPath) + "/" + filename + extension
 }
 
 func (v *VideoService) Download(bucketName string) error {
@@ -41,7 +48,7 @@ func (v *VideoService) Download(bucketName string) error {
 		return err
 	}
 
-	f, err := os.Create(os.Getenv("localStoragePath") + "/" + v.Video.ID + ".mp4")
+	f, err := os.Create(mountTempFilename(v.Video.ID, ".mp4"))
 	if err != nil {
 		return nil
 	}
@@ -56,4 +63,28 @@ func (v *VideoService) Download(bucketName string) error {
 	log.Printf("video %v has been stored", v.Video.ID)
 
 	return nil
+}
+
+func (v *VideoService) Fragment() error {
+	err := os.Mkdir(os.Getenv(tmpDirectoryPath) + "/" +v.Video.ID, os.ModePerm)
+	if err != nil {
+		return err
+	}
+
+	source := mountTempFilename(v.Video.ID, ".mp4")
+	target := mountTempFilename(v.Video.ID, ".frag")
+
+	cmd := exec.Command("mp4fragment", source, target)
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return err
+	}
+	printOutput(output)
+	return nil
+}
+
+func printOutput(out []byte) {
+	if len(out) > 0 {
+		log.Printf("=====> Output: %s\n", string(out))
+	}
 }
