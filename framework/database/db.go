@@ -25,7 +25,7 @@ func NewDb() *Database {
 
 func NewDbTest() *gorm.DB {
 	dbInstance := NewDb()
-	dbInstance.Env = "Test"
+	dbInstance.Env = "test"
 	dbInstance.DbTypeTest = "sqlite3"
 	dbInstance.DsnTest = ":memory:"
 	dbInstance.AutoMigrationDb = true
@@ -42,7 +42,7 @@ func NewDbTest() *gorm.DB {
 func (d *Database) Connect() (*gorm.DB, error) {
 	var err error
 
-	if d.Env != "Test" {
+	if d.Env != "test" {
 		d.Db, err = gorm.Open(d.DbType, d.Dsn)
 	} else {
 		d.Db, err = gorm.Open(d.DbTypeTest, d.DsnTest)
