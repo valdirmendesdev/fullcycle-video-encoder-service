@@ -34,13 +34,13 @@ func TestVideoServiceUpload(t *testing.T) {
 
 	videoUpload := services.NewVideoUpload()
 	videoUpload.OutputBucket = bucketNameToTest
-	videoUpload.VideoPath = services.MountTempFolder(video.ID)
+	videoUpload.VideoPath = services.MountVideoFolderName(video.ID)
 
 	doneUpload := make(chan string)
 	go videoUpload.ProcessUpload(50, doneUpload)
 
 	result := <-doneUpload
-	require.Equal(t, result, "upload completed")
+	require.Equal(t, result, services.UPLOAD_COMPLETED)
 
 	err = videoService.Finish()
 	require.Nil(t, err)
