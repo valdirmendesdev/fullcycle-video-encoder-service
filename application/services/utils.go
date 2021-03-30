@@ -12,6 +12,7 @@ const (
 	ENV_INPUT_BUCKET_NAME = "inputBucketName"
 	ENV_OUTPUT_BUCKET_NAME = "outputBucketName"
 	ENV_CONCURRENCY_UPLOAD = "CONCURRENCY_UPLOAD"
+	ENV_CONCURRENCY_WORKERS = "CONCURRENCY_WORKERS"
 )
 
 const (
@@ -47,4 +48,7 @@ func GetOutputBucketName() string {
 
 func GetNumberOfConcurrencyUploadProcesses() (int, error) {
 	return strconv.Atoi(os.Getenv(ENV_CONCURRENCY_UPLOAD))
+}
+func GetNumberOFConcurrencyWorkers() (int, error) {
+	return strconv.Atoi(os.Getenv(ENV_CONCURRENCY_WORKERS))
 }
