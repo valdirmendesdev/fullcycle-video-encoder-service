@@ -9,6 +9,7 @@ import (
 	"github.com/valdirmendesdev/encoder-service/framework/queue"
 	"log"
 	"os"
+	"sync"
 )
 
 type JobManager struct {
@@ -113,7 +114,10 @@ func (j *JobManager) notify(jobJson []byte) error {
 
 func (j *JobManager) notifySuccess(jobResult JobWorkerResult, ch *amqp.Channel) error {
 
+	Mutex.Lock()
 	jobJson, err := json.Marshal(jobResult.Job)
+	Mutex.Unlock()
+
 	if err != nil {
 		return err
 	}
